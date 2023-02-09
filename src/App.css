@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #b9cdbf;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+div#root {
+  min-height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.App {
+  padding-bottom: 100px;
+}
+footer {
+  /*  position: absolute; */
+  bottom: 0;
+}
+@media (max-width: 425px) {
+  footer {
+    position: relative;
+  }
+  div#root {
+    min-height: 100vh;
+  }
+}
+
+.logo {
+  text-shadow: 2px 0 #000, -2px 0 #000, 0 -3px #000, 0 3px #000, 1px 1px #000,
+    -1px -1px #fff, 1px -1px #000, -1px 4px #000;
+}
+.bg-zoom {
+  /* animation: bgZoom 25s infinite; */
+  justify-content: space-between;
+  /* z-index: -1; */
+}
+
+.bg-zoom
+  .xs\:.lg\:.md\:.sm\:.bg-no-repeat.bg-center.bg-cover.flex.sm\:flex-row.flex-col.justify-start.items-start.gap-y-4.z-5 {
+  /* animation: bgZoom 25s infinite; */
+  gap: 10px;
+  /* z-index: -1; */
+}
+
+.menubutton {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* img.reponsiveImage {
+    /*  object-fit: cover;
+    object-position: left;
+    margin: 0 auto;
+    height: 30%;
+    z-index: -1;
+  }
+  */
+
+img.reponsiveImage {
+  width: 60%;
+  margin: auto;
+}
+
+.rightBar {
+  position: relative;
+}
+.default-blue {
+  background: #b9cdbf;
+}
+
+footer {
+  z-index: 99999;
+}
+.mapboxgl-map {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.active {
+  background: gray;
+  color: #fff;
+  width: 100%;
+  text-align: center;
+}
+.active:hover {
+  background: #fff;
+  color: gray;
+  width: 100%;
+}

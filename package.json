@@ -1,0 +1,60 @@
+{
+  "name": "geoone",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.2.1",
+    "@fortawesome/free-solid-svg-icons": "^6.2.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
+    "@react-google-maps/api": "^2.17.1",
+    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^0.24.0",
+    "dompurify": "^2.4.1",
+    "html2canvas": "^1.4.1",
+    "jsdom": "^20.0.3",
+    "jspdf": "^2.5.1",
+    "react": "^17.0.2",
+    "react-ctrl-f": "^0.0.4",
+    "react-dom": "^17.0.2",
+    "react-router-dom": "^6.2.1",
+    "react-scripts": "5.0.0",
+    "react-super-responsive-table": "^5.2.1",
+    "web-vitals": "^2.1.3"
+  },
+  "scripts": {
+    "start": "react-scripts --max_old_space_size=4096 start",
+    "build": "react-scripts --max_old_space_size=4096 build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "build:css": "tailwindcss -m -i ./src/app.css -o ./src/index.css",
+    "dev": "concurrently \"npm run dev:css\" \"remix dev\"",
+    "dev:css": "tailwindcss -w -i ./src/app.css -o ./src/index.css"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/react": "^16.14.34",
+    "autoprefixer": "^10.4.13",
+    "mini-css-extract-plugin": "2.4.5",
+    "postcss": "^8.4.20",
+    "tailwindcss": "^3.2.4"
+  }
+}
