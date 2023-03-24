@@ -181,17 +181,18 @@ export default function UserPanel({ children }) {
                     Listar Projetos Gerenciados por mim.
                   </NavLink>
                   <NavLink
-                    to={"/project_list_all"}
-                    className="px-4 py-2 text-green-600 hover:text-green-800  shadow text-center"
-                  >
-                    Listar Projetos não atribuidos.
-                  </NavLink>
-                  <NavLink
                     exact="true"
-                    to={"/create-user"}
+                    to={"/create-project"}
                     className="px-4 py-2 text-green-600 hover:text-green-800   shadow text-center"
                   >
                     Adicionar Projeto
+                  </NavLink>
+                  <NavLink
+                    exact="true"
+                    to={"/search-panel"}
+                    className="px-4 py-2 text-green-600 hover:text-green-800   shadow text-center"
+                  >
+                    Pesquisar projetos
                   </NavLink>
                 </>
               )}
@@ -202,13 +203,6 @@ export default function UserPanel({ children }) {
                     className="px-4 py-2 text-green-600 hover:text-green-800 shadow text-center"
                   >
                     Perfil
-                  </NavLink>
-                  <NavLink
-                    exact="true"
-                    to={"/create-user"}
-                    className="px-4 py-2 text-green-600 hover:text-green-800   shadow text-center"
-                  >
-                    Adicionar Usuário Final
                   </NavLink>
                   <NavLink
                     exact="true"

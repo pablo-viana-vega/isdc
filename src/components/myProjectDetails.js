@@ -17,6 +17,8 @@ export default function MyProjectDetails({ setGlobalProject }) {
   const user_id = localStorage.getItem("logged_id"); //
   let projectData;
 
+  setUserType(localStorage.getItem("user_type"));
+
   for (let i = 0; i < projectList.length; i++) {
     if (projectList[i].id == id) {
       projectData = projectList[i];
@@ -70,13 +72,35 @@ export default function MyProjectDetails({ setGlobalProject }) {
       });
   };
 
+  /*  const [userType, setUserType] = useState(""); */
+  /*  const [responseMessage, setResponseMessage] = useState(""); */
+
   useEffect(() => {
-    setLoggedId(user_id);
-    setProject(projectData);
-    setUserType(localStorage.getItem("user_type"));
+    axios
+      .post(`${apiUrl}/api/projects/get/public`, {
+        project_id: id,
+      })
+      .then((response) => {
+        // Se o projeto for encontrado, atualiza o estado do componente
+        if (response.data.status === 1) {
+          setProject(response.data.project[0]);
+          console.log(id, localStorage.getItem("logged_id"));
+          console.log(response);
+        } else {
+          console.log(response);
+          console.log(id);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    console.log(project);
   }, []);
 
   console.log(project);
+  console.log(project.user_id);
+  console.log(project.id);
 
   return (
     <UserPanel>
@@ -156,6 +180,10 @@ export default function MyProjectDetails({ setGlobalProject }) {
                 <span className="font-bold">Hectares:</span> {project.hectares}
               </div>
               <div className="mb-4">
+                <span className="font-bold">Período de crédito:</span>{" "}
+                {project.CP}
+              </div>
+              <div className="mb-4">
                 <span className="font-bold">Status:</span>{" "}
                 {project.project_status}
               </div>
@@ -163,6 +191,63 @@ export default function MyProjectDetails({ setGlobalProject }) {
                 <span className="font-bold">Latitude e longitude</span>{" "}
                 {`${project.latitude} ${project.longitude}`}
               </div>
+              <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
+                <label
+                  className="block text-white text-sm font-bold mb-2"
+                  htmlFor="DCCCV"
+                >
+                  DOCUMENTOS DO CANAL CCV
+                </label>
+                <FileInput
+                  id={"DCCCV"}
+                  label={"DCCCV"}
+                  name={"DCCCV"}
+                  accept={".pdf, .PDF"}
+                  uId={project.user_id}
+                  pId={project.id}
+                  visibilityType="all"
+                />
+              </div>
+              <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
+                <label
+                  className="block text-white text-sm font-bold mb-2"
+                  htmlFor="DECCV"
+                >
+                  DOCUMENTOS DE EMISSÃO CCV
+                </label>
+                <FileInput
+                  id={"DECCV"}
+                  label={"DECCV"}
+                  name={"DECCV"}
+                  accept={".pdf, .PDF"}
+                  uId={project.user_id}
+                  pId={project.id}
+                  visibilityType="all"
+                />
+              </div>
+              <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
+                <label
+                  className="block text-white text-sm font-bold mb-2"
+                  htmlFor="ODCCV"
+                >
+                  CCV OUTROS DOCUMENTOS
+                </label>
+                <FileInput
+                  id={"ODCCV"}
+                  label={"ODCCV"}
+                  name={"ODCCV"}
+                  accept={".pdf, .PDF"}
+                  uId={project.user_id}
+                  pId={project.id}
+                  visibilityType="all"
+                />
+              </div>
+              <Link
+                to={`/pdf-page/${id}`}
+                className="text-green-600 hover:text-green-800 font-medium"
+              >
+                Relatório
+              </Link>
             </>
           ))}
       </div>

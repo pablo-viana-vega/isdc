@@ -76,7 +76,7 @@ export default function ProjectList() {
                   >
                     <td>
                       <Link
-                        to={`/my-project-details/${project.id}`}
+                        to={`/project-details-panel/${project.id}`}
                         className="text-white underline font-medium"
                       >
                         {project.title}
@@ -85,7 +85,11 @@ export default function ProjectList() {
                     <td>{project.proponent}</td>
                     <td>{project.code}</td>
 
-                    <td>{new Date(project.created_at).toLocaleDateString()}</td>
+                    <td>
+                      {
+                        /* new Date */ project.created_at /* .toLocaleDateString() */
+                      }
+                    </td>
                   </tr>
                 ))}
               </tbody>

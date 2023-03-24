@@ -4,6 +4,8 @@ import axios from "axios";
 import { apiUrl, methodologies, states, mapsKey, projectType } from "../utils";
 import UserPanel from "./user-panel";
 import Map from "./gmaps";
+import { FileInput } from "./fileImput";
+import { Link } from "react-router-dom";
 
 export default function CreateProjectForm() {
   const [selectedMethodology, setSelectedMethodology] = useState("");
@@ -24,14 +26,14 @@ export default function CreateProjectForm() {
     setNewProjectType(event.target.value);
   };
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (response.status === 1) {
       clearTimeout(messageTimer);
       setMessageTimer(
         setTimeout(() => setResponse({ status: 1, message: "" }), 3000)
       );
     }
-  }, [response]);
+  }, [response]); */
 
   const handleLatitudeChange = (event) => {
     setLatitude(event.target.value);
@@ -114,6 +116,10 @@ export default function CreateProjectForm() {
         if (response.data.status === 1) {
           //alert("Projeto criado com sucesso");
           setProjectId(response.data.project_id);
+          setTimeout(
+            () => window.scrollTo(0, document.body.scrollHeight),
+            2000
+          );
           axios
             .post(`${apiUrl}/api/projects/get`, {
               user_id: localStorage.getItem("logged_id"),
@@ -134,9 +140,9 @@ export default function CreateProjectForm() {
             .catch((error) => {
               console.error(error);
             });
-          setTimeout(function () {
+          /* setTimeout(function () {
             window.location.href = `/project/edit/${response.data.project_id}`;
-          }, 3000);
+          }, 3000); */
           console.log(response);
         } else {
           //alert("Erro ao criar o projeto");
@@ -154,10 +160,7 @@ export default function CreateProjectForm() {
   return (
     <UserPanel>
       <h1 className="text-3xl text-white font-bold my-4">Inserir Projeto</h1>
-      <h1 className="text-2xl text-white font-bold m-4">
-        (Após inserir os dados básicos, você sera redirecionado para a pagina de
-        edição. Podendo fazer upload dos arquivos.)
-      </h1>
+
       <form
         id="projects"
         className="w-full xs:-NOT lg:-NOT md:-NOT sm:-NOT   shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col items-center"
@@ -337,13 +340,13 @@ export default function CreateProjectForm() {
             className="block text-white text-sm font-bold mb-2"
             htmlFor="CP"
           >
-            Periodo de cédito
+            Periodo de crédito
           </label>
           <input
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="CP"
             type="text"
-            placeholder="Digite o periodo de cédito"
+            placeholder="Digite o periodo de crédito"
             required
           />
         </div>
@@ -425,19 +428,83 @@ export default function CreateProjectForm() {
         <>
           <div className="response w-full bg-green-500 flex justify-center text-lg fixed top-0 left-0">
             {response.message}
-            Aguarde. Você será redirecionado para página de edição...
+            {".  Insira os arquivos a baixo se desejar"}
+          </div>
+          <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
+            <label
+              className="block text-white text-sm font-bold mb-2"
+              htmlFor="DCCCV"
+            >
+              DOCUMENTOS DO CANAL CCV
+            </label>
+            <FileInput
+              id={"DCCCV"}
+              label={"DCCCV"}
+              name={"DCCCV"}
+              accept={".pdf, .PDF"}
+              uId={localStorage.getItem("logged_id")}
+              pId={response.project_id}
+            />
+          </div>
+          <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
+            <label
+              className="block text-white text-sm font-bold mb-2"
+              htmlFor="DECCV"
+            >
+              DOCUMENTOS DE EMISSÃO CCV
+            </label>
+            <FileInput
+              id={"DECCV"}
+              label={"DECCV"}
+              name={"DECCV"}
+              accept={".pdf, .PDF"}
+              uId={localStorage.getItem("logged_id")}
+              pId={response.project_id}
+            />
+          </div>
+          <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
+            <label
+              className="block text-white text-sm font-bold mb-2"
+              htmlFor="ODCCV"
+            >
+              CCV OUTROS DOCUMENTOS
+            </label>
+            <FileInput
+              id={"ODCCV"}
+              label={"ODCCV"}
+              name={"ODCCV"}
+              accept={".pdf, .PDF"}
+              uId={localStorage.getItem("logged_id")}
+              pId={response.project_id}
+            />
           </div>
         </>
       )}
+      {!response.status && (
+        <button
+          /*   onClick={handleSubmitProject} */
+          form="projects"
+          type="submit"
+          className="bg-green-500 mb-5 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          Salvar Projeto
+        </button>
+      )}
+      {response.status === 1 && (
+        <div
+          /*   onClick={handleSubmitProject} */
 
-      <button
-        /*   onClick={handleSubmitProject} */
-        form="projects"
-        type="submit"
-        className="bg-green-500 mb-5 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-      >
-        Salvar Projeto
-      </button>
+          className="bg-green-500 mb-5 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+        >
+          {`Seu projeto foi salvo com sucesso, segue seu código único. ${response.code}`}
+          <Link
+            to={`/project-details-panel/${response.project_id}`}
+            className="text-green-600 hover:text-green-800 font-medium"
+          >
+            Veja os detalhe aqui
+          </Link>
+        </div>
+      )}
     </UserPanel>
   );
 }

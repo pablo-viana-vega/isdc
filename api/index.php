@@ -5,6 +5,9 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header("Access-Control-Allow-Methods: *");
 
+require '../vendor/autoload.php';
+
+
 include 'DbConnect.php';
 $objDb = new DbConnect;
 $conn = $objDb->connect();
@@ -62,6 +65,8 @@ switch ($method) {
             $email = filter_var($user->email, FILTER_SANITIZE_EMAIL);
             $password = password_hash($user->password, PASSWORD_DEFAULT);
             $user_type =  $user->user_type;
+            $active =  $user->active;
+
 
             $sql = "SELECT * FROM users WHERE email = :email";
             $stmt = $conn->prepare($sql);
@@ -74,7 +79,7 @@ switch ($method) {
             if (!$result) {
 
 
-                $sql = "INSERT INTO users(id, firstName, lastName, mobile, email, password, user_type, created_at) VALUES(null, :firstName, :lastName, :mobile, :email, :password, :user_type, :created_at)";
+                $sql = "INSERT INTO users(id, firstName, lastName, mobile, email, password, user_type, active, created_at) VALUES(null, :firstName, :lastName, :mobile, :email, :password, :user_type, :active, :created_at)";
 
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(':firstName', $firstName);
@@ -83,6 +88,7 @@ switch ($method) {
                 $stmt->bindParam(':email', $email);
                 $stmt->bindParam(':password', $password);
                 $stmt->bindParam(':user_type', $user_type);
+                $stmt->bindParam(':active', $active);
                 $stmt->bindParam(':created_at', $created_at);
 
                 if ($stmt->execute()) {
@@ -98,14 +104,16 @@ switch ($method) {
                         if (!file_exists($path)) { // verifica se a pasta já existe
                             mkdir($path, 0775, true); // cria a pasta com permissão de leitura e escrita para o usuário e grupo, e leitura para outros
                         }
-                        $to = $user->email; // endereço de email do destinatário
-                        $subject = "Suas credenciais de acesso"; // assunto do email
-                        $message = "Olá, seu email de login é:" .
-                            $user->email . " e sua senha é: " . $user->password; // corpo do email
-                        $headers = "From: seuemail@seudominio.com"; // cabeçalhos do email
+                        if ($user_type != 'UF') {
+                            $to = $user->email; // endereço de email do destinatário
+                            $subject = "Suas credenciais de acesso"; // assunto do email
+                            $message = "Olá, seu email de login é:" .
+                                $user->email . " e sua senha é: " . $user->password; // corpo do email
+                            $headers = "From: seuemail@seudominio.com"; // cabeçalhos do email
 
-                        // envia o email
-                        mail($to, $subject, $message, $headers);
+                            // envia o email
+                            mail($to, $subject, $message, $headers);
+                        }
                     }
 
                     $response = ['status' => 1, 'message' => 'Cadastro efetuado com sucesso.'];
@@ -406,6 +414,76 @@ switch ($method) {
             break;
         }
 
+
+        if (
+            isset($path[2]) && $path[2] == 'projects' && isset($path[3]) && $path[3] == 'get'
+            && isset($path[4]) && $path[4] == 'public'
+        ) {
+            // Lê os dados enviados pelo cliente
+            $response = [
+                'status' => 'n/a',
+                'message' => 'debug',
+                'info' => $data
+            ];
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            echo json_encode($response);
+            // Verifica se o ID do projeto foi passado
+
+            if (($data['project_id'])) {
+                // Cria a consulta SQL para selecionar o projeto
+                $sql = "SELECT * FROM projects WHERE id = :id";
+
+                // Prepara a consulta
+                $stmt = $conn->prepare($sql);
+
+                // Vincula o parâmetro ao valor
+                $stmt->bindParam(
+                    ':id',
+                    $data['project_id']
+                );
+
+
+                // Executa a consulta
+                $stmt->execute();
+
+                // Armazena o resultado da consulta em um array
+                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Verifica se o projeto foi encontrado
+                if ($result) {
+                    // Envia os dados do projeto de volta para o cliente
+                    $response = [
+                        'status' => 1,
+                        'message' => 'Projeto encontrado',
+                        'project' => $result,
+                        /*  'user_type' => $_SESSION['user_type'] */
+                    ];
+                    echo json_encode($response);
+                } else {
+                    // Envia uma mensagem de erro para o cliente
+                    $response = [
+                        'status' => 0,
+                        'message' => 'Projeto não encontrado',
+                        'project' => $data['user_id']
+                    ];
+                    echo json_encode($response);
+                }
+            } else {
+                $response = [
+                    'status' => 'n/a',
+                    'message' => 'debug',
+                    'info' => $data
+                ];
+                echo json_encode($response);
+            }
+
+            // Envia a resposta em formato JSON
+
+            break;
+        }
+
+
         if ($path[2] === 'projects' && $path[3] === 'assign') {
             // Lê os dados enviados pelo cliente
             $data = json_decode(file_get_contents('php://input'), true);
@@ -483,13 +561,14 @@ switch ($method) {
                 $methodology = $data['methodology'];
                 $raee = $data['raee'];
                 $hectares = $data['hectares'];
+                $CP = $data['CP'];
                 $project_status = "Em validação";
                 $folder_path = "../usersDocs/$user_id";
 
 
 
                 // Cria a consulta SQL para inserir o novo projeto na tabela
-                $sql = "INSERT INTO projects (user_id, title, proponent, street_address, city_address, state_address, description, project_type, methodology, raee, latitude, longitude, project_status, folder_path, hectares ) VALUES (:user_id, :title, :proponent, :street_address, :city_address, :state_address, :description, :project_type, :methodology, :raee, :latitude, :longitude, :project_status, :folder_path, :hectares)";
+                $sql = "INSERT INTO projects (user_id, title, proponent, street_address, city_address, state_address, description, project_type, methodology, raee, latitude, longitude, project_status, folder_path, hectares, CP ) VALUES (:user_id, :title, :proponent, :street_address, :city_address, :state_address, :description, :project_type, :methodology, :raee, :latitude, :longitude, :project_status, :folder_path, :hectares, :CP)";
 
 
                 // Prepara a consulta
@@ -511,6 +590,7 @@ switch ($method) {
                 $stmt->bindParam(':project_status', $project_status);
                 $stmt->bindParam(':folder_path', $folder_path);
                 $stmt->bindParam(':hectares', $hectares);
+                $stmt->bindParam(':CP', $CP);
 
 
                 // Executa a consulta
@@ -534,7 +614,7 @@ switch ($method) {
                     $stmt->bindParam(':id', $project_id);
                     $stmt->execute();
 
-                    $response = ['status' => 1, 'message' => 'Projeto criado com sucesso', 'project_id' => $project_id];
+                    $response = ['status' => 1, 'message' => 'Projeto criado com sucesso', 'project_id' => $project_id, 'code' => $code];
                 } else {
                     // Retorna uma mensagem de erro
                     $response = ['status' => 0, 'message' => 'Erro ao criar projeto'];
@@ -635,152 +715,89 @@ switch ($method) {
             //echo json_encode($data['project_id']);
             if (($data['user_id'])) {
 
-                $query = "SELECT * FROM projects WHERE id = :project_id AND code = 'waiting'";
-                $select = $conn->prepare($query);
-                $select->bindParam(':project_id', $data['project_id']);
-                $select->execute();
+
+                $user_id = filter_var($data['user_id'], FILTER_SANITIZE_NUMBER_INT);
+                $project_id = filter_var($data['project_id'], FILTER_SANITIZE_NUMBER_INT);
+                $title = $data['title'];
+                $proponent
+                    = $data['proponent'];
+                $street_address = $data['street_address'];
+                $city_address = $data['city_address'];
+                $state_address = $data['state_address'];
+                $description = $data['description'];
+                $project_type = $data['project_type'];
+                $methodology = $data['methodology'];
+                $hectares = $data['hectares'];
+                $raee = $data['raee'];
+                $latitude = $data['latitude'];
+                $longitude = $data['longitude'];
+                $project_status = $data['project_status'];
+                $CP = $data['CP'];
 
 
-                if ($select->rowCount() == 1) {
+                // Inserir o projeto no banco de dados
+                $query = "UPDATE projects SET user_id = :user_id, title = :title, proponent = :proponent, street_address = :street_address, city_address = :city_address, state_address = :state_address, description = :description, project_type = :project_type, methodology = :methodology, hectares = :hectares, raee = :raee, project_status = :project_status, latitude = :latitude, longitude = :longitude, CP = :CP WHERE id = :project_id";
+                $update = $conn->prepare($query);
+                $update->bindParam(':user_id', $user_id);
+                $update->bindParam(':project_id', $project_id);
+                $update->bindParam(':title', $title);
+                $update->bindParam(':proponent', $proponent);
+                $update->bindParam(':street_address', $street_address);
+                $update->bindParam(':city_address', $city_address);
+                $update->bindParam(':state_address', $state_address);
+                $update->bindParam(':description', $description);
+                $update->bindParam(':project_type', $project_type);
+                $update->bindParam(':methodology', $methodology);
+                $update->bindParam(':hectares', $hectares);
+                $update->bindParam(':raee', $raee);
+                $update->bindParam(':latitude', $latitude);
+                $update->bindParam(':longitude', $longitude);
+                $update->bindParam(':project_status', $project_status);
+                $update->bindParam(':CP', $CP);
+                $update->execute();
 
-                    $user_id = filter_var($data['user_id'], FILTER_SANITIZE_NUMBER_INT);
-                    $project_id = filter_var($data['project_id'], FILTER_SANITIZE_NUMBER_INT);
-                    $title = $data['title'];
-                    $proponent
-                        = $data['proponent'];
-                    $street_address = $data['street_address'];
-                    $city_address = $data['city_address'];
-                    $state_address = $data['state_address'];
-                    $description = $data['description'];
-                    $project_type = $data['project_type'];
-                    $methodology = $data['methodology'];
-                    $hectares = $data['hectares'];
-                    $raee = $data['raee'];
-                    $latitude = $data['latitude'];
-                    $longitude = $data['longitude'];
-                    $project_status = $data['project_status'];
-                    $CP = $data['CP'];
-                    $code = sprintf('%05d', $user_id) . sprintf('%05d', $project_id);
-
-
-                    // Inserir o projeto no banco de dados
-                    $query = "UPDATE projects SET user_id = :user_id, title = :title, proponent = :proponent, street_address = :street_address, city_address = :city_address, state_address = :state_address, description = :description, project_type = :project_type, methodology = :methodology, hectares = :hectares, raee = :raee, project_status = :project_status, latitude = :latitude, longitude = :longitude, code = :code, CP = :CP WHERE id = :project_id";
-                    $update = $conn->prepare($query);
-                    $update->bindParam(':user_id', $user_id);
-                    $update->bindParam(':project_id', $project_id);
-                    $update->bindParam(':title', $title);
-                    $update->bindParam(':proponent', $proponent);
-                    $update->bindParam(':street_address', $street_address);
-                    $update->bindParam(':city_address', $city_address);
-                    $update->bindParam(':state_address', $state_address);
-                    $update->bindParam(':description', $description);
-                    $update->bindParam(':project_type', $project_type);
-                    $update->bindParam(':methodology', $methodology);
-                    $update->bindParam(':hectares', $hectares);
-                    $update->bindParam(':raee', $raee);
-                    $update->bindParam(':latitude', $latitude);
-                    $update->bindParam(':longitude', $longitude);
-                    $update->bindParam(':project_status', $project_status);
-                    $update->bindParam(':code', $code);
-                    $update->bindParam(':CP', $CP);
-                    $update->execute();
-
-                    // Verifica se o projeto foi atualizado com sucesso
-                    if ($update->rowCount() == 1) {
-                        // Retorna uma mensagem de sucesso
-                        $response = [
-                            'status' => 1,
-                            'message' => 'Projeto atualizado com sucesso'
-                        ];
-                    } else {
-                        // Retorna uma mensagem de erro
-                        $response = [
-                            'status' => 0,
-                            'message' => 'Erro ao atualizar o projeto linha:546',
-                            'info' => [
-                                'error' => $update,
-                                'data' => $data,
-                                'select' => $select->rowCount()
-                            ]
-                        ];
-                    }
+                if ($update->rowCount() == 1) {
+                    // Retorna uma mensagem de sucesso
+                    $response = [
+                        'status' => 1,
+                        'message' => 'Projeto atualizado com sucesso'
+                    ];
                 } else {
-                    $user_id = filter_var($data['user_id'], FILTER_SANITIZE_NUMBER_INT);
-                    $project_id = filter_var($data['project_id'], FILTER_SANITIZE_NUMBER_INT);
-                    $title = $data['title'];
-                    $proponent
-                        = $data['proponent'];
-                    $street_address = $data['street_address'];
-                    $city_address = $data['city_address'];
-                    $state_address = $data['state_address'];
-                    $description = $data['description'];
-                    $project_type = $data['project_type'];
-                    $methodology = $data['methodology'];
-                    $hectares = $data['hectares'];
-                    $raee = $data['raee'];
-                    $latitude = $data['latitude'];
-                    $longitude = $data['longitude'];
-                    $project_status = $data['project_status'];
-                    $CP = $data['CP'];
+                    // Retorna uma mensagem de erro
+                    $response = [
+                        'status' => '1',
+                        'message' => 'Nada foi atualizado',
+                        'info' => [
+                            'error' => $update,
+                            'data' => $data,
+                            'update' => $update->rowCount()
+                        ]
+                    ];
+                }
+            }
+            echo json_encode($response);
 
+            break;
+        }
+        if (isset($path[4]) && $path[4] == 'get' && isset($path[2]) && $path[2] == 'projects') {
+            $userId = $path[5];
+            $folderPath = '../usersDocs/' . $userId . '/' . $path[6] . '/' . $path[3];
+            $response = array();
+            if (is_dir($folderPath)) {
+                // Obtém a lista de arquivos dentro da pasta
+                $files = scandir($folderPath);
+                // Remove os elementos "." e ".." do array
+                $files = array_diff($files, array('.', '..'));
+                // Cria um array com os nomes dos arquivos
+                $fileNames = array();
 
-                    // Inserir o projeto no banco de dados
-                    $query = "UPDATE projects SET user_id = :user_id, title = :title, proponent = :proponent, street_address = :street_address, city_address = :city_address, state_address = :state_address, description = :description, project_type = :project_type, methodology = :methodology, hectares = :hectares, raee = :raee, project_status = :project_status, latitude = :latitude, longitude = :longitude, CP = :CP WHERE id = :project_id";
-                    $update = $conn->prepare($query);
-                    $update->bindParam(':user_id', $user_id);
-                    $update->bindParam(':project_id', $project_id);
-                    $update->bindParam(':title', $title);
-                    $update->bindParam(':proponent', $proponent);
-                    $update->bindParam(':street_address', $street_address);
-                    $update->bindParam(':city_address', $city_address);
-                    $update->bindParam(':state_address', $state_address);
-                    $update->bindParam(':description', $description);
-                    $update->bindParam(':project_type', $project_type);
-                    $update->bindParam(':methodology', $methodology);
-                    $update->bindParam(':hectares', $hectares);
-                    $update->bindParam(':raee', $raee);
-                    $update->bindParam(':latitude', $latitude);
-                    $update->bindParam(':longitude', $longitude);
-                    $update->bindParam(':project_status', $project_status);
-                    $update->bindParam(':CP', $CP);
-                    $update->execute();
-
-                    if ($update->rowCount() == 1) {
-                        // Retorna uma mensagem de sucesso
-                        $response = [
-                            'status' => 1,
-                            'message' => 'Projeto atualizado com sucesso'
-                        ];
-                    } else {
-                        // Retorna uma mensagem de erro
-                        $response = [
-                            'status' => 0,
-                            'message' => 'Erro ao atualizar o projeto linha:600',
-                            'info' => [
-                                'error' => $update,
-                                'data' => $data,
-                                'update' => $update->rowCount()
-                            ]
-                        ];
+                foreach ($files as $file) {
+                    if (pathinfo($file, PATHINFO_EXTENSION) == "pdf") {
+                        $fileNames[] = $file;
                     }
                 }
-                echo json_encode($response);
-            }
-            break;
-        }
-        if (isset($path[4]) && $path[4] == 'get' && isset($path[2]) && $path[2] == 'projects') {
-            $userId = $path[5];
-            $folderPath = '../usersDocs/' . $userId . '/' . $path[6] . '/' . $path[3];
-            if (is_dir($folderPath)) {
-                // Obtém a lista de arquivos dentro da pasta
-                $files = scandir($folderPath);
-                // Remove os elementos "." e ".." do array
-                $files = array_diff($files, array('.', '..'));
-                // Cria um array com os nomes dos arquivos
-                $fileNames = array();
-                foreach ($files as $file) {
-                    $fileNames[] = $file;
-                }
+
+
 
                 // Obtém os projetos correspondentes ao usuário especificado
                 $sql = "SELECT * FROM projects WHERE user_id = :user_id";
@@ -790,9 +807,10 @@ switch ($method) {
                 $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 // Cria um array para armazenar as informações de arquivos e projetos
-                $response = array();
+
                 $response['files'] = $fileNames;
                 $response['projects'] = $projects;
+
 
                 // Exibe o array de nomes de arquivos e projetos
                 echo json_encode($response);
@@ -805,7 +823,82 @@ switch ($method) {
             }
             break;
         }
-        if (isset($path[4]) && $path[4] == 'get' && isset($path[2]) && $path[2] == 'projects') {
+        
+        if (isset($path[3]) && $path[3] == 'pdfbuild' && isset($path[2]) && $path[2] == 'projects') {
+            try {
+                if (headers_sent()) {
+                    throw new Exception("FPDF error: Some data has already been output, can't send PDF file.");
+                }
+
+                header("Content-type: application/pdf");
+                header("Content-Disposition: inline; filename='Relatório_CCV.pdf'");
+
+                $userDocsPath = '../usersDocs/' . $path[4] . '/' . $path[5];
+                $clientPdfPath = $userDocsPath . '/clientPdf/Relatório-UF-CCV.pdf';
+                $pdfFilesPath = $userDocsPath . '/**/*';
+                $outputPath = $userDocsPath . '/final';
+                $pdfFiles = glob($pdfFilesPath);
+
+                if (empty($pdfFiles)) {
+                    // Tratar a ausência de arquivos a serem mesclados
+                    exit();
+                }
+
+                // Verificar se a pasta de destino existe e, se não existir, criá-la
+                if (!is_dir($outputPath)) {
+                    mkdir($outputPath, 0777, true);
+                }
+
+                // Iniciar a instância do FPDI
+                $pdf = new \setasign\Fpdi\Fpdi();
+
+                // Adicionar o arquivo do cliente ao PDF
+                $clientPdfFile = glob($clientPdfPath);
+                if (!empty($clientPdfFile)) {
+                    $pageCount = $pdf->setSourceFile($clientPdfFile[0]);
+                    for ($i = 1; $i <= $pageCount; $i++) {
+                        $tpl = $pdf->importPage($i);
+                        $pdf->AddPage();
+                        $pdf->useTemplate($tpl);
+                    }
+                }
+
+                // Adicionar cada arquivo restante ao PDF
+                foreach ($pdfFiles as $file) {
+                    if ($file === $clientPdfPath || strpos($file, $outputPath) !== false) {
+                        continue;
+                    }
+
+                    $pageCount = $pdf->setSourceFile($file);
+                    for ($i = 1; $i <= $pageCount; $i++) {
+                        $tpl = $pdf->importPage($i);
+                        $pdf->AddPage();
+                        $pdf->useTemplate($tpl);
+                    }
+                }
+
+                // Gerar e salvar o PDF
+                $filePath = $outputPath . '/Relatório-AT-CCV.pdf';
+                $pdfUrl = 'usersDocs/' . $path[4] . '/' . $path[5] . '/' . 'final' . '/Relatório-AT-CCV.pdf';
+                $response = array();
+                $response = ['status' => 1, 'pathPdf' => $pdfUrl];
+                echo json_encode($response);
+                $pdf->Output("F", $filePath);
+            } catch (Exception $e) {
+
+                // Tratar a exceção adequadamente
+                error_log($e->getMessage());
+            } finally {
+                exit();
+            }
+        }
+
+
+
+
+        /*  if (
+            isset($path[4]) && $path[4] == 'get' && isset($path[2]) && $path[2] == 'projects'
+        ) {
             $userId = $path[5];
             $folderPath = '../usersDocs/' . $userId . '/' . $path[6] . '/' . $path[3];
             if (is_dir($folderPath)) {
@@ -816,13 +909,29 @@ switch ($method) {
                 // Cria um array com os nomes dos arquivos
                 $fileNames = array();
                 foreach ($files as $file) {
-                    $fileNames[] = $file;
+                    if (isset($path[7]) && $path[7] == 'all') {
+                        $folderPath = '../' . 'usersDocs/' . $userId . '/' . $path[6] . '/' . $path[3];
+                        $pdfFile = $folderPath . '/' . $file;
+                        $imageFile = str_replace('.pdf', '.png', $pdfFile);
+
+                        $imagick = new \Imagick();
+                        $imagick->readImage($pdfFile);
+                        $imagick->setImageFormat("png");
+                        $imagick->writeImage($imageFile);
+
+                        $images[] = $imageFile;
+                    } else {
+                        $images[] = $file;
+                    }
                 }
 
                 // Obtém os projetos correspondentes ao usuário especificado
                 $sql = "SELECT * FROM projects WHERE user_id = :user_id";
                 $stmt = $conn->prepare($sql);
-                $stmt->bindParam(':user_id', $userId);
+                $stmt->bindParam(
+                    ':user_id',
+                    $userId
+                );
                 $stmt->execute();
                 $projects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -830,6 +939,7 @@ switch ($method) {
                 $response = array();
                 $response['files'] = $fileNames;
                 $response['projects'] = $projects;
+                $response['images'] = $images;
 
                 // Exibe o array de nomes de arquivos e projetos
                 echo json_encode($response);
@@ -841,7 +951,11 @@ switch ($method) {
                 echo json_encode($response);
             }
             break;
-        }
+        } */
+
+
+
+
 
         if (isset($path[2]) && $path[2] == 'projects' && isset($path[3]) && $path[3] == 'search') {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -1057,7 +1171,7 @@ switch ($method) {
                     return;
                 }
                 //
-                if ($fileSize < 1000000) {
+                if ($fileSize < 100000000) {
 
                     move_uploaded_file($fileTempName, $pathFile . '/' . $fileName);
                     // Retorna uma mensagem de sucesso

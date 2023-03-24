@@ -44,7 +44,7 @@ export default function ProjectFilterPanel() {
 
   return (
     <UserPanel>
-      <form onSubmit={handleSubmit} className="mb-6">
+      <form onSubmit={handleSubmit} className="mb-6 w-10/12">
         <input
           type="text"
           placeholder="Código"
@@ -132,7 +132,7 @@ export default function ProjectFilterPanel() {
               className="mb-2 p-2 border border-gray-400 rounded"
             >
               <p>Código: {project.code}</p>
-              <Link to={`/project-details-search/${project.id}`}>
+              <Link to={`/project-details-panel/${project.id}`}>
                 <h4 className="font-bold">{project.title}</h4>
               </Link>
               <p>Proponente: {project.proponent}</p>

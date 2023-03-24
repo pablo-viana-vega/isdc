@@ -17,6 +17,27 @@ body {
   padding: 0;
   height: 100%;
 }
+iframe,
+.goog-te-combo option:not([value="pt"], [value="es"], [value="en"]) {
+  z-index: -999999 !important;
+  visibility: hidden !important;
+  font-size: 0 !important;
+  height: 0 !important;
+  top: 0;
+}
+.skiptranslate.goog-te-gadget {
+  position: relative;
+  top: 0;
+  right: 0;
+  z-index: 99999;
+}
+
+#profile {
+  width: 1440px;
+  min-width: 1440px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
@@ -109,4 +130,57 @@ footer {
   background: #fff;
   color: gray;
   width: 100%;
+}
+
+.loader {
+  display: inline-block;
+  position: relative;
+  width: 120px;
+  height: 120;
+}
+.line {
+  position: absolute;
+  height: 30px;
+  width: 15px;
+  border-radius: 50%;
+  animation: loader 1s ease-in-out infinite;
+}
+.line1 {
+  top: 37px;
+  left: 66px;
+  transform: rotate(0deg);
+  animation-delay: 0;
+  background-color: black;
+}
+.line2 {
+  top: 22px;
+  right: 22px;
+  transform: rotate(45deg);
+  animation-delay: 0.12s;
+  background-color: red;
+}
+.line3 {
+  bottom: 37px;
+  right: 66px;
+  transform: rotate(90deg);
+  animation-delay: 0.24s;
+  background-color: blue;
+}
+.line4 {
+  bottom: 22px;
+  left: 22px;
+  transform: rotate(135deg);
+  animation-delay: 0.36s;
+  background-color: #fff;
+}
+@keyframes loader {
+  0% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1, 2.5);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

@@ -15,7 +15,7 @@ export default function UserFilter() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const response = await axios.post(`${apiUrl}/api/users/search`, {
+    const response = await axios(`${apiUrl}/api/users/search`, {
       firstName: selectedFirstName,
       lastName: selectedLastName,
       mobile: selectedMobile,
@@ -23,8 +23,10 @@ export default function UserFilter() {
       user_type: selectedUserType,
       active: selectedActive,
     });
+    console.log(response);
 
     const data = response.data;
+
     if (data.message) {
       alert(data.message);
     } else {
@@ -89,7 +91,7 @@ export default function UserFilter() {
           type="submit"
           className="bg-green-500 text-white p-2 rounded w-full hover:bg-green-600"
         >
-          Filtrar projetos
+          Procurar Usuários
         </button>
         <div className="mt-4">
           <h3 className="mb-2 font-bold">Resultados</h3>

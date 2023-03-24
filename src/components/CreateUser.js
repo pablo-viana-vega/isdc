@@ -14,7 +14,7 @@ export default function CreateUser() {
   const [password, setPassword] = useState("");
   const [response, setResponse] = useState({});
   const [showPassword, setShowPassword] = useState(false);
-  const [usetype, setUserType] = useState('');
+  const [usetype, setUserType] = useState("");
 
   function togglePasswordVisibility() {
     setShowPassword(!showPassword);
@@ -34,10 +34,10 @@ export default function CreateUser() {
         mobile: mobile,
         email: email,
         password: password,
-        user_type:"UF"
+        user_type: "UF",
+        active: "yes",
       })
       .then((response) => {
-        
         setResponse(response.data);
         if (response.data.status === 1) {
           const fields = document.querySelectorAll(".flex.flex-wrap.-mx-3");
@@ -60,7 +60,8 @@ export default function CreateUser() {
       <div className="register self-center  flex flex-col mx-5 justify-center items-center text-white">
         {}
         <h2 className="mb-7 text-3xl md:text-2xl xl:text-5xl lg:text-4xl sm:text-6xl text-center">
-          Faça o cadastro do seu cliente ele irá receber um email com acesso para acompanhar os projetos.
+          Faça o cadastro do seu cliente ele irá receber um email com acesso
+          para acompanhar os projetos.
         </h2>
         <form className="w-full max-w-lg self-center " onSubmit={handleSubmit}>
           <div className="flex flex-wrap -mx-3 mb-6">

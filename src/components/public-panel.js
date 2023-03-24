@@ -22,7 +22,7 @@ export default function PublicPanel({ children }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const response = await axios.post(`${apiUrl}/api/projects/search`, {
+    const response = await axios(`${apiUrl}/api/projects/search`, {
       code: selectedCode,
       title: selectedTitle,
       proponent: selectedProponent,
@@ -158,7 +158,7 @@ export default function PublicPanel({ children }) {
               >
                 <p>Código: {project.code}</p>
                 <Link
-                  to={`/my-project-details/${project.id}`} /* /${project.user_id} */
+                  to={`/project-details-search/${project.id}`} /* /${project.user_id} */
                 >
                   <h4 className="font-bold">{project.title}</h4>
                 </Link>

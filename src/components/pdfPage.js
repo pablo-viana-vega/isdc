@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 
-import { mapsKey } from "../utils";
+import { apiUrl, mapsKey } from "../utils";
 import { Link, useParams } from "react-router-dom";
-
 import Map from "./gmaps";
 import sitebg from "../images/sitebg.jpg";
 import { jsPDF as JsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import axios from "axios";
 
-export default function PdfPage({ setGlobalProject }) {
+export default function PdfPage() {
   let { id } = useParams();
   const [loggedId, setLoggedId] = useState("");
   const [project, setProject] = useState({});
@@ -23,7 +23,7 @@ export default function PdfPage({ setGlobalProject }) {
 
   const handleClick = async () => {
     const htmlSource = document.getElementById("profile");
-    const filename = `Relatório VCS`;
+    const filename = `Relatório CCV`;
 
     if (!htmlSource) {
       return;
@@ -49,11 +49,12 @@ export default function PdfPage({ setGlobalProject }) {
       heightLeft -= pageHeight;
 
       while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+        position = heightLeft - imgHeight + 4; // adiciona margem superior e inferior de 20 mm
         pdf.addPage();
         pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
+
       pdf.save(filename);
     });
   };
@@ -62,7 +63,7 @@ export default function PdfPage({ setGlobalProject }) {
     if (projectList[i].id == id) {
       projectData = projectList[i];
     }
-    console.log(projectList[i].id);
+    /*  console.log(projectList[i].id); */
   }
   if (!projectData) {
     // window.location.href = "create-project";
@@ -71,21 +72,47 @@ export default function PdfPage({ setGlobalProject }) {
   }
 
   useEffect(() => {
-    setLoggedId(user_id);
-    setProject(projectData);
-    setUserType(localStorage.getItem("user_type"));
+    axios
+      .post(`${apiUrl}/api/projects/get/public`, {
+        project_id: id,
+      })
+      .then((response) => {
+        // Se o projeto for encontrado, atualiza o estado do componente
+        if (response.data.status === 1) {
+          setProject(response.data.project[0]);
+          console.log(id, localStorage.getItem("logged_id"));
+          console.log(response);
+        } else {
+          console.log(response);
+          console.log(id);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    console.log(project);
   }, []);
 
   console.log(project, project);
 
   return (
     <>
-      <div id="profile" class="mx-6 my-8 p-6 bg-white shadow-lg rounded-lg">
-        <h1 class="text-3xl font-bold mb-4">
+      <div
+        id="profile" /*  className="mx-6 my-8 p-6 bg-white shadow-lg rounded-lg" */
+      >
+        <h1 className=" underline text-4xl font-bold mb-4 text-center">
+          Relatório CCV
+        </h1>
+        <h1 className="text-4xl font-bold mb-4">
           Nome do projeto: {project.title}
         </h1>
         <div className="w-4/6 mx-auto flex justify-center items-center align-middle">
           <img className="reponsiveImage" src={sitebg} />
+        </div>
+        <div className="mb-4">
+          <span className="text-3xl font-bold">Código:</span>
+          <span className="text-3xl font-bold">{project.code}</span>
         </div>
         <Map
           mapsKey={mapsKey}
@@ -93,41 +120,78 @@ export default function PdfPage({ setGlobalProject }) {
           longitude={project.longitude}
           controls={false}
         />
-        <div class="mb-4">
-          <span class="font-bold">Código:</span> {project.code}
+
+        <div className="mb-4">
+          <span className="text-3xl font-bold">Proponente:</span>
+          <span className="text-3xl">{project.proponent}</span>
         </div>
-        <div class="mb-4">
-          <span class="font-bold">Proponente:</span> {project.proponent}
+        <div className="mb-4">
+          <span className="text-3xl font-bold">Endereço:</span>
+          <span className="text-3xl">
+            {project.city_address}, {project.state_address}
+          </span>
         </div>
-        <div class="mb-4">
-          <span class="font-bold">Endereço:</span> {project.street_address},
-          {project.city_address}, {project.state_address}
+        <div className="mb-4">
+          <span className="text-3xl font-bold">Descrição:</span>
+          <span className="text-3xl">
+            {" "}
+            {project.description &&
+              project.description.split(" ").map((word, index) => {
+                if (index === 300) {
+                  return (
+                    <React.Fragment key={index}>
+                      {word}
+                      <br />
+                      <br />
+                      <br />
+                      <br />
+                      <br />
+                      <br />
+                      <br />
+                      <br />
+                      <br />
+                      <br />
+                      <div className="w-4/6 mx-auto flex justify-center items-center align-middle">
+                        <img className="responsiveImage mywid" src={sitebg} />
+                      </div>
+                    </React.Fragment>
+                  );
+                } else {
+                  return <span key={index}>{word} </span>;
+                }
+              })}
+          </span>
         </div>
-        <div class="mb-4">
-          <span class="font-bold">Descrição:</span> {project.description}
+        <div className="mb-4">
+          <span className="text-3xl font-bold">Tipo de projeto:</span>
+          <span className="text-3xl">{project.project_type}</span>
         </div>
-        <div class="mb-4">
-          <span class="font-bold">Tipo de projeto:</span> {project.project_type}
+        <div className="mb-4">
+          <span className="text-3xl font-bold">Metodologia:</span>
+          <span className="text-3xl">{project.methodology}</span>
         </div>
-        <div class="mb-4">
-          <span class="font-bold">Metodologia:</span> {project.methodology}
+        <div className="mb-4">
+          <span className="text-3xl font-bold">
+            Reduções Anuais Estimadas de Emissões:
+          </span>
+          <span className="text-3xl">{project.raee}</span>
         </div>
-        <div class="mb-4">
-          <span class="font-bold">Reduções Anuais Estimadas de Emissões:</span>{" "}
-          {project.raee}
+        <div className="mb-4">
+          <span className="text-3xl font-bold">Hectares:</span>
+          <span className="text-3xl">{project.hectares}</span>
         </div>
-        <div class="mb-4">
-          <span class="font-bold">Hectares:</span> {project.hectares}
+        <div className="mb-4">
+          <span className="text-3xl font-bold">Período de crédito:</span>{" "}
+          <span className="text-3xl">{project.CP}</span>
         </div>
-        <div class="mb-4">
-          <span class="font-bold">Período de crédito:</span> {project.CP}
+        <div className="mb-4">
+          <span className="text-3xl font-bold">Status:</span>
+          <span className="text-3xl">{project.project_status}</span>{" "}
         </div>
-        <div class="mb-4">
-          <span class="font-bold">Status:</span> {project.project_status}
-        </div>
-        <div class="mb-4">
-          <span class="font-bold">Latitude e longitude:</span>{" "}
-          {`${project.latitude} ${project.longitude}`}
+        <div className="mb-4">
+          <span className="text-3xl font-bold">
+            {`Latitude:${project.latitude} e longitude: ${project.longitude}`}
+          </span>{" "}
         </div>
       </div>
 

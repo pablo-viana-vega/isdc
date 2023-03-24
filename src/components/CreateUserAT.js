@@ -34,6 +34,7 @@ export default function CreateUserAT() {
         email: email,
         password: password,
         user_type: "AT",
+        active: "yes",
       })
       .then((response) => {
         setResponse(response.data);
@@ -46,8 +47,10 @@ export default function CreateUserAT() {
             fields[i].style.display = "none"; // depending on what you're doing
           }
           setTimeout(function () {
-            window.location.href = "/user-panel";
+            window.location.href = "/userpanel";
           }, 2000);
+        } else {
+          console.log(response);
         }
       })
       .catch((error) => console.error(error));

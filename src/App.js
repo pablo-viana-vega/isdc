@@ -31,11 +31,35 @@ import ProjectDetailsUf from "./components/projectDetailsUf";
 import PdfPage from "./components/pdfPage";
 import EditUserFormAdm from "./components/EditUserFormAdm";
 import PublicPanel from "./components/public-panel";
+import PdfPageAT from "./components/pdfPageAT";
+import { useEffect } from "react";
+import ProjectDetailsSearchPanel from "./components/projectDetailsSearchPanel";
 
 function App() {
+  /* const googleTranslateElementInit = () => {
+    new window.google.translate.TranslateElement(
+      {
+        pageLanguage: "en",
+        autoDisplay: false,
+      },
+      "google_translate_element"
+    );
+  };
+  useEffect(() => {
+    var addScript = document.createElement("script");
+    addScript.setAttribute(
+      "src",
+      "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+    );
+    document.body.appendChild(addScript);
+    window.googleTranslateElementInit = googleTranslateElementInit;
+  }, []); */
   return (
-    <div className="App  w-full ">
-      <div className="bg-zoom w-full space-between bg-no-repeat bg-center bg-cover top-0 left-0 overflow-y-visible z-0 flex flex-col">
+    <div className="App  w-full">
+      <div
+       /*  id="google_translate_element" */
+        className="bg-zoom w-full space-between bg-no-repeat bg-center bg-cover top-0 left-0 overflow-y-visible z-0 flex flex-col"
+      >
         <BrowserRouter>
           <Routes>
             <Route index element={<Home />} />
@@ -56,8 +80,12 @@ function App() {
               element={<MyProjectDetails />}
             />
             <Route
-              path="project-details-search/:pid/:uid"
+              path="project-details-search/:id"
               element={<ProjectDetailsSearch />}
+            />
+            <Route
+              path="project-details-panel/:id"
+              element={<ProjectDetailsSearchPanel />}
             />
             <Route
               path="project-details-uf/:id"
@@ -76,6 +104,7 @@ function App() {
 
             <Route path="/search-panel" element={<ProjectFilterPanel />} />
             <Route path="/pdf-page/:id" element={<PdfPage />} />
+            <Route path="/pdf-page-at/:id" element={<PdfPageAT />} />
 
             {/* <Route path="user/create" element={<CreateUser />} />
             <Route path="user/:id/edit" element={<EditUser />} />

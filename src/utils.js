@@ -1,5 +1,7 @@
-export const apiUrl = "https://geoone.viansoftware.com.br";
-export const mapsKey = "AIzaSyDsv3y2gYgSoEusZRMv-wLNPjp-F6xAnF4";
+export const apiUrl =
+  "https://sistema.institutosudamericanodecarbono.group"; /* "https://geoone.viansoftware.com.br" */ /* `${window.location.protocol}${window.location.host}`; */
+export const mapsKey =
+  "AIzaSyA4uVWLjJBAa-JXo10eyqft08_x9OTzjhA"; /*geoone*/ /*"AIzaSyDsv3y2gYgSoEusZRMv-wLNPjp-F6xAnF4";/*abrarastro */
 export const methodologies = [
   "VM0001 Metodologia de Projeto de Eficiência de Detecção Automática de Vazamento de Refrigerante por Infravermelho, v1.1",
   "VM0002 Novas instalações de cogeração que fornecem eletricidade com menos carbono à rede e/ou água quente para um ou mais clientes da rede, v1.0",
@@ -100,17 +102,17 @@ export const projectType = [
   "Manuseio e descarte de resíduos",
 ];
 
- export const projectStatus = [
-   "Renovação do Período de Crédito e Aprovação de Verificação Solicitada",
-   "Solicitação de Renovação do Período de Crédito",
-   "Inativo",
-   "Em espera",
-   "Registrado",
-   "Aprovação de registro e verificação solicitada",
-   "Registro solicitado",
-   "Rejeitado pelo administrador",
-   "Em desenvolvimento",
-   "Em validação",
-   "Unidades Transferidas do Programa de GEE Aprovado",
-   "Retirado",
- ];
+export const projectStatus = [
+  "Renovação do Período de Crédito e Aprovação de Verificação Solicitada",
+  "Solicitação de Renovação do Período de Crédito",
+  "Inativo",
+  "Em espera",
+  "Registrado",
+  "Aprovação de registro e verificação solicitada",
+  "Registro solicitado",
+  "Rejeitado pelo administrador",
+  "Em desenvolvimento",
+  "Em validação",
+  "Unidades Transferidas do Programa de GEE Aprovado",
+  "Retirado",
+];

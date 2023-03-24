@@ -32,7 +32,7 @@ export default function Register() {
         mobile: mobile,
         email: email,
         password: password,
-        user_type:'AT'
+        user_type: "AT",
       })
       .then((response) => {
         setResponse(response.data);

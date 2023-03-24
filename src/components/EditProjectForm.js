@@ -25,7 +25,7 @@ export default function EditProjectForm() {
 
   const [project, setProject] = useState({});
   const projectList = JSON.parse(localStorage.getItem("projects")) || [];
-  let projectData;
+  /*  let projectData;
   for (let i = 0; i < projectList.length; i++) {
     if (projectList[i].id == id) {
       projectData = projectList[i];
@@ -36,7 +36,7 @@ export default function EditProjectForm() {
     // window.location.href = "create-project";
     console.log(projectList);
     console.log(id);
-  }
+  } */
 
   const handleLatitudeChange = (event) => {
     setLatitude(event.target.value);
@@ -146,7 +146,9 @@ export default function EditProjectForm() {
         // Exibe uma mensagem de sucesso ou de erro
         if (response.data.status === 1) {
           console.log(response);
-          window.history.back();
+          setTimeout(() => {
+            window.history.back();
+          }, 2000);
         } else {
           //alert("Erro ao criar o projeto");
           console.log(response.data);
@@ -162,7 +164,26 @@ export default function EditProjectForm() {
   // Função que atualiza o mapa quando os valores de latitude e longitude são alterados
 
   useEffect(() => {
-    setProject(projectData);
+    axios
+      .post(`${apiUrl}/api/projects/get/public`, {
+        project_id: id,
+      })
+      .then((response) => {
+        // Se o projeto for encontrado, atualiza o estado do componente
+        if (response.data.status === 1) {
+          setProject(response.data.project[0]);
+          console.log(id, localStorage.getItem("logged_id"));
+          console.log(response);
+        } else {
+          console.log(response);
+          console.log(id);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    console.log(project);
   }, []);
 
   // Adiciona um marcador no local especificado
@@ -172,54 +193,6 @@ export default function EditProjectForm() {
       <h2 className="text-white mb-7 text-3xl md:text-2xl xl:text-5xl lg:text-4xl sm:text-6xl text-center">
         Edite seu projeto
       </h2>
-      <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
-        <label
-          className="block text-white text-sm font-bold mb-2"
-          htmlFor="DCVCS"
-        >
-          DOCUMENTOS DO CANAL VCS
-        </label>
-        <FileInput
-          id={"DCVCS"}
-          label={"DCVCS"}
-          name={"DCVCS"}
-          accept={".pdf, .PDF"}
-          uId={localStorage.getItem("logged_id")}
-          pId={id}
-        />
-      </div>
-      <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
-        <label
-          className="block text-white text-sm font-bold mb-2"
-          htmlFor="DEVCS"
-        >
-          DOCUMENTOS DE EMISSÃO VCS
-        </label>
-        <FileInput
-          id={"DEVCS"}
-          label={"DEVCS"}
-          name={"DEVCS"}
-          accept={".pdf, .PDF"}
-          uId={localStorage.getItem("logged_id")}
-          pId={id}
-        />
-      </div>
-      <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
-        <label
-          className="block text-white text-sm font-bold mb-2"
-          htmlFor="ODVCS"
-        >
-          VCS OUTROS DOCUMENTOS
-        </label>
-        <FileInput
-          id={"ODVCS"}
-          label={"ODVCS"}
-          name={"ODVCS"}
-          accept={".pdf, .PDF"}
-          uId={localStorage.getItem("logged_id")}
-          pId={id}
-        />
-      </div>
       <form
         className="w-full xs:-NOT lg:-NOT md:-NOT sm:-NOT   shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col items-center"
         onSubmit={handleSubmitProjectUpdate}
@@ -420,13 +393,13 @@ export default function EditProjectForm() {
             className="block text-white text-sm font-bold mb-2"
             htmlFor="CP"
           >
-            Periodo de cédito
+            Periodo de crédito
           </label>
           <input
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="CP"
             type="text"
-            placeholder="Digite o periodo de cédito"
+            placeholder="Digite o periodo de crédito"
             defaultValue={project.CP}
             required
           />
@@ -525,6 +498,57 @@ export default function EditProjectForm() {
           Salvar Projeto
         </button>
       </form>
+      <h2 className="text-white mb-7 text-3xl md:text-2xl xl:text-5xl lg:text-4xl sm:text-6xl text-center">
+        Gerenciar arquivos
+      </h2>
+      <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
+        <label
+          className="block text-white text-sm font-bold mb-2"
+          htmlFor="DCCCV"
+        >
+          DOCUMENTOS DO CANAL CCV
+        </label>
+        <FileInput
+          id={"DCCCV"}
+          label={"DCCCV"}
+          name={"DCCCV"}
+          accept={".pdf, .PDF"}
+          uId={project.user_id}
+          pId={project.id}
+        />
+      </div>
+      <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
+        <label
+          className="block text-white text-sm font-bold mb-2"
+          htmlFor="DECCV"
+        >
+          DOCUMENTOS DE EMISSÃO CCV
+        </label>
+        <FileInput
+          id={"DECCV"}
+          label={"DECCV"}
+          name={"DECCV"}
+          accept={".pdf, .PDF"}
+          uId={project.user_id}
+          pId={project.id}
+        />
+      </div>
+      <div className="mb-6 w-full rounded-lg border-4 p-3 border-b-white flex flex-col">
+        <label
+          className="block text-white text-sm font-bold mb-2"
+          htmlFor="ODCCV"
+        >
+          CCV OUTROS DOCUMENTOS
+        </label>
+        <FileInput
+          id={"ODCCV"}
+          label={"ODCCV"}
+          name={"ODCCV"}
+          accept={".pdf, .PDF"}
+          uId={project.user_id}
+          pId={project.id}
+        />
+      </div>
     </UserPanel>
   );
 }

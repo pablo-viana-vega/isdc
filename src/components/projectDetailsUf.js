@@ -7,7 +7,7 @@ import { apiUrl } from "../utils";
 import axios from "axios";
 import Map from "./gmaps";
 
-export default function ProjectDetailsUf({ setGlobalProject }) {
+export default function ProjectDetailsUf(props) {
   let { id } = useParams();
   const [loggedId, setLoggedId] = useState("");
   const [project, setProject] = useState({});
@@ -55,7 +55,7 @@ export default function ProjectDetailsUf({ setGlobalProject }) {
             {responseMessage.status === 1 && (
               <div className="fixed-top bg-green-600 text-white text-center p-3">
                 {responseMessage.message}
-                Por favoe aguarde...
+                Por favor aguarde...
               </div>
             )}
             <h1 className="text-3xl font-bold mb-4">
